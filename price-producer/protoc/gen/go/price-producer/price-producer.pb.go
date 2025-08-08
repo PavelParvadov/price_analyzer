@@ -285,7 +285,7 @@ const file_price_producer_price_producer_proto_rawDesc = "" +
 	"\asuccess\x18\x01 \x01(\bR\asuccess2\xae\x01\n" +
 	"\fPriceService\x12Q\n" +
 	"\x0eGetLatestPrice\x12\x1e.priceProducer.GetPriceRequest\x1a\x1f.priceProducer.GetPriceResponse\x12K\n" +
-	"\bSetPrice\x12\x1e.priceProducer.SetPriceRequest\x1a\x1f.priceProducer.SetPriceResponseB)Z'pavel.price-producer.v1;priceProducerv1b\x06proto3"
+	"\bSetPrice\x12\x1e.priceProducer.SetPriceRequest\x1a\x1f.priceProducer.SetPriceResponseB)Z'pavel.price.producer.v1;priceProducerv1b\x06proto3"
 
 var (
 	file_price_producer_price_producer_proto_rawDescOnce sync.Once
