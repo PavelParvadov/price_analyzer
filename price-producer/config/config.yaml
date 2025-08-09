@@ -1,0 +1,12 @@
+PriceGrpcConfig:
+  PricePort: 5554
+
+KafkaConfig:
+  addresses: "localhost:9091,localhost:9092,localhost:9093"
+  topic: "price"
+
+ProducerConfig:
+  tickers: ["AAPL", "GOOG", "TSLA"]
+  intervalMs: 1000
+  initialPrice: 200.0
+  volatilityPercent: 0.5

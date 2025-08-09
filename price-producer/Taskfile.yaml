@@ -1,0 +1,6 @@
+version: "3"
+tasks:
+  run:
+    desc: "run application"
+    cmds:
+      - "go run ./cmd/price-producer/main.go --config-path=./config/config.yaml"
