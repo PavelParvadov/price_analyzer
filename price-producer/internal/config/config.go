@@ -19,8 +19,8 @@ type PriceGrpcConfig struct {
 }
 
 type KafkaConfig struct {
-	Addresses string `yaml:"addresses" env:"ADDRESSES"`
-	Topic     string `yaml:"topic" env:"TOPIC"`
+	Addresses []string `yaml:"addresses" env:"ADDRESSES"`
+	Topic     string   `yaml:"topic" env:"TOPIC"`
 }
 type ProducerConfig struct {
 	Tickers           []string `yaml:"tickers" env:"TICKERS" env-separator:","`

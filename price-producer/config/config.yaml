@@ -2,7 +2,7 @@ PriceGrpcConfig:
   PricePort: 5554
 
 KafkaConfig:
-  addresses: "localhost:9091,localhost:9092,localhost:9093"
+  addresses: ["localhost:9091", "localhost:9092", "localhost:9093"]
   topic: "price"
 
 ProducerConfig:
