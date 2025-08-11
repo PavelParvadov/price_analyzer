@@ -2,11 +2,13 @@ package v1
 
 import (
 	"encoding/json"
+	"net/http"
+	"strings"
+	"time"
+
 	"github.com/PavelParvadov/price_analyzer/price-producer/internal/domain/dto"
 	"github.com/PavelParvadov/price_analyzer/price-producer/internal/domain/models"
 	"github.com/PavelParvadov/price_analyzer/price-producer/internal/usecase"
-	"net/http"
-	"time"
 )
 
 type Handler struct {
@@ -22,7 +24,7 @@ func (h *Handler) ProducePrice(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
-
+	defer r.Body.Close()
 	addPriceRequest := dto.AddPriceRequest{}
 
 	if err := json.NewDecoder(r.Body).Decode(&addPriceRequest); err != nil {
@@ -33,8 +35,9 @@ func (h *Handler) ProducePrice(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Недостаточно аргументов", http.StatusBadRequest)
 		return
 	}
+	symbol := strings.ToUpper(strings.TrimSpace(addPriceRequest.Symbol))
 	price := models.Price{
-		Symbol:    addPriceRequest.Symbol,
+		Symbol:    symbol,
 		Value:     float64(addPriceRequest.Value),
 		Timestamp: time.Now().UTC().Format(time.RFC3339),
 	}

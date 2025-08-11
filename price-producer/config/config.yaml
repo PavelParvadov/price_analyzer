@@ -1,5 +1,5 @@
-PriceGrpcConfig:
-  PricePort: 5554
+PriceConfig:
+  PricePort: 8080
 
 KafkaConfig:
   addresses: ["localhost:9091", "localhost:9092", "localhost:9093"]
@@ -7,6 +7,6 @@ KafkaConfig:
 
 ProducerConfig:
   tickers: ["AAPL", "GOOG", "TSLA"]
-  intervalMs: 1000
+  intervalMs: 5000
   initialPrice: 200.0
   volatilityPercent: 0.5

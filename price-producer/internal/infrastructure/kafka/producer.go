@@ -4,6 +4,8 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"time"
+
 	"github.com/PavelParvadov/price_analyzer/price-producer/internal/config"
 	"github.com/PavelParvadov/price_analyzer/price-producer/internal/domain/models"
 	"github.com/segmentio/kafka-go"
@@ -15,9 +17,14 @@ type Producer struct {
 
 func NewProducer(cfg config.Config) *Producer {
 	writer := kafka.NewWriter(kafka.WriterConfig{
-		Topic:    cfg.KafkaConfig.Topic,
-		Brokers:  cfg.KafkaConfig.Addresses,
-		Balancer: &kafka.Hash{},
+		Brokers:      cfg.KafkaConfig.Addresses,
+		Topic:        cfg.KafkaConfig.Topic,
+		Balancer:     &kafka.Hash{},
+		RequiredAcks: 1,
+		BatchTimeout: 50 * time.Millisecond,
+		BatchSize:    100,
+		ReadTimeout:  5 * time.Second,
+		WriteTimeout: 5 * time.Second,
 	})
 	return &Producer{
 		Producer: writer,

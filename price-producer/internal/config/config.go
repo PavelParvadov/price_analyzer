@@ -9,12 +9,12 @@ import (
 )
 
 type Config struct {
-	PriceConfig PriceGrpcConfig `yaml:"PriceGrpcConfig"`
-	KafkaConfig KafkaConfig     `yaml:"KafkaConfig"`
-	Producer    ProducerConfig  `yaml:"ProducerConfig"`
+	PriceConfig PriceConfig    `yaml:"PriceConfig"`
+	KafkaConfig KafkaConfig    `yaml:"KafkaConfig"`
+	Producer    ProducerConfig `yaml:"ProducerConfig"`
 }
 
-type PriceGrpcConfig struct {
+type PriceConfig struct {
 	Port int `yaml:"PricePort" env:"PRICE_PORT"`
 }
 

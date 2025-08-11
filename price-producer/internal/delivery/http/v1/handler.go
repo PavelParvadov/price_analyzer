@@ -5,5 +5,5 @@ import (
 )
 
 func (h *Handler) InitRoutes(mux *http.ServeMux) {
-	mux.HandleFunc("v1/produce", h.ProducePrice)
+	mux.HandleFunc("POST /v1/produce", h.ProducePrice)
 }
