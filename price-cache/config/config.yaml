@@ -1,0 +1,14 @@
+KafkaConfig:
+  addresses: ["localhost:9091", "localhost:9092", "localhost:9093"]
+  topic: "price"
+  groupId: "price-cache"
+
+RedisConfig:
+  addr: "localhost:6379"
+  password: "pavel"
+  db: 0
+
+GRPCConfig:
+  port: 6000
+
+
