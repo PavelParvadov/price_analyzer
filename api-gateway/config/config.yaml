@@ -1,0 +1,10 @@
+HTTP:
+  port: 8081
+
+PriceCache:
+  host: "127.0.0.1"
+  port: 6000
+
+
+
+

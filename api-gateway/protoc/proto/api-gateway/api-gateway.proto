@@ -1,0 +1,24 @@
+syntax = "proto3";
+
+package price;
+
+option go_package = "github.com/PavelParvadov/price_analyzer/api-gateway/protoc/gen/go/price;pricepb";
+
+message Price {
+  string symbol = 1;
+  double value = 2;
+  string timestamp = 3;
+}
+
+message GetLatestPriceRequest {
+  string symbol = 1;
+}
+
+message GetLatestPriceResponse {
+  Price price = 1;
+  bool exists = 2;
+}
+
+service PriceService {
+  rpc GetLatestPrice(GetLatestPriceRequest) returns (GetLatestPriceResponse);
+}
