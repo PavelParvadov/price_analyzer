@@ -9,6 +9,7 @@ import (
 	"github.com/PavelParvadov/price_analyzer/price-producer/internal/config"
 
 	"github.com/PavelParvadov/price_analyzer/price-producer/internal/domain/models"
+	"go.uber.org/zap"
 )
 
 type PricePublisher interface {
@@ -19,6 +20,7 @@ type Producer struct {
 	publisher PricePublisher
 	cfg       config.Config
 	last      map[string]float64
+	log       *zap.Logger
 }
 
 func NewProducer(publisher PricePublisher, cfg config.Config) *Producer {
@@ -56,7 +58,11 @@ func (p *Producer) Start(ctx context.Context) error {
 					Timestamp: time.Now().UTC().Format(time.RFC3339),
 				}
 				pubCtx, cancel := context.WithTimeout(ctx, 3*time.Second)
-				_ = p.publisher.Publish(pubCtx, msg)
+				if err := p.publisher.Publish(pubCtx, msg); err != nil {
+					if p.log != nil {
+						p.log.Error("publish failed", zap.String("symbol", msg.Symbol), zap.Float64("value", msg.Value), zap.Error(err))
+					}
+				}
 				cancel()
 			}
 		}

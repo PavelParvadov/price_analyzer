@@ -4,8 +4,9 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
-	"go.uber.org/zap"
 	"time"
+
+	"go.uber.org/zap"
 
 	cachecfg "github.com/PavelParvadov/price_analyzer/price-cache/internal/config"
 	"github.com/PavelParvadov/price_analyzer/price-cache/internal/domain/models"
@@ -49,15 +50,20 @@ func (c *Consumer) Start(ctx context.Context, uc *usecase.PriceUC) error {
 
 		var p models.Price
 		if err := json.Unmarshal(m.Value, &p); err == nil {
+			c.log.Info("kafka message received", zap.String("symbol", p.Symbol), zap.Float64("value", p.Value))
 			err = uc.SaveLatest(ctx, p.Symbol, p.Value, p.Timestamp)
 			if err != nil {
 				c.log.Error("failed to save price", zap.Error(err))
 			}
+		} else {
+			c.log.Warn("failed to unmarshal message", zap.Error(err))
 		}
 
 		err = c.reader.CommitMessages(ctx, m)
 		if err != nil {
 			c.log.Error("failed to commit message", zap.Error(err))
+		} else {
+			c.log.Info("kafka message committed", zap.Int("partition", m.Partition), zap.Int64("offset", m.Offset))
 		}
 	}
 }

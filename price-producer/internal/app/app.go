@@ -21,7 +21,7 @@ type App struct {
 
 func NewApp(log *zap.Logger, cfg config.Config) *App {
 
-	kafkaProducer := kafka.NewProducer(cfg)
+	kafkaProducer := kafka.NewProducer(cfg, log)
 	uc := usecase.NewProducer(kafkaProducer, cfg)
 	http := httpapp.NewHttpApp(cfg, kafkaProducer, log)
 

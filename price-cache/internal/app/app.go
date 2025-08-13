@@ -23,7 +23,7 @@ func NewApp(log *zap.Logger, cfg config.Config) *App {
 	repo := rredis.NewPriceRedisRepo(cfg)
 	uc := usecase.NewPriceUC(repo)
 	consumer := kconsumer.NewConsumer(cfg, log)
-	// gRPC server
+
 	grpcSrv := grpcapp.NewGRPCApp(log, cfg.GRPC.Port, uc)
 
 	return &App{
