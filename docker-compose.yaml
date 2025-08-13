@@ -86,10 +86,88 @@ services:
       interval: 10s
       timeout: 5s
       retries: 3
-    ports:
-      - "6379:6379"
+
     volumes:
       - redis-data:/data
+    networks:
+      - kafka-net
+
+  price-producer:
+    build:
+      context: ./price-producer
+      dockerfile: Dockerfile
+    container_name: price-producer
+    environment:
+      ADDRESSES: "kafka1:29091,kafka2:29092,kafka3:29093"
+      TOPIC: "price"
+      TICKERS: "AAPL,GOOG,TSLA"
+      INTERVAL_MS: "5000"
+      INITIAL_PRICE: "200.0"
+      VOLATILITY_PERCENT: "0.5"
+      PRICE_PORT: "8080"
+    command: ["/app/price-producer", "--config-path", "/app/config/config.yaml"]
+    ports:
+      - "8080:8080"
+    depends_on:
+      - kafka1
+      - kafka2
+      - kafka3
+    healthcheck:
+      test: ["CMD", "sh", "-c", "nc -z localhost 8080"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+    networks:
+      - kafka-net
+
+  price-cache:
+    build:
+      context: ./price-cache
+      dockerfile: Dockerfile
+    container_name: price-cache
+    environment:
+      ADDRESSES: "kafka1:29091,kafka2:29092,kafka3:29093"
+      TOPIC: "price"
+      GROUP_ID: "price-cache"
+      REDIS_ADDR: "redis:6379"
+      REDIS_PASSWORD: "${REDIS_PASSWORD}"
+      REDIS_DB: "0"
+      GRPC_PORT: "6000"
+    command: ["/app/price-cache", "--config-path", "/app/config/config.yaml"]
+    ports:
+      - "6000:6000"
+    depends_on:
+      - kafka1
+      - kafka2
+      - kafka3
+      - redis
+    healthcheck:
+      test: ["CMD", "sh", "-c", "nc -z localhost 6000"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+    networks:
+      - kafka-net
+
+  api-gateway:
+    build:
+      context: ./api-gateway
+      dockerfile: Dockerfile
+    container_name: api-gateway
+    environment:
+      HTTP_PORT: "8081"
+      PRICE_CACHE_HOST: "price-cache"
+      PRICE_CACHE_PORT: "6000"
+    command: ["/app/api-gateway", "--config-path", "/app/config/config.yaml"]
+    ports:
+      - "8081:8081"
+    depends_on:
+      - price-cache
+    healthcheck:
+      test: ["CMD", "sh", "-c", "nc -z localhost 8081"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
     networks:
       - kafka-net
 
