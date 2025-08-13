@@ -18,14 +18,13 @@ type Handler struct {
 }
 
 func NewHandler(p usecase.PricePublisher) *Handler {
-	return &Handler{publisher: p}
+	// гарантируем не-nil логгер
+	return &Handler{publisher: p, log: zap.NewNop()}
 }
 
 func (h *Handler) ProducePrice(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
-		if h.log != nil {
-			h.log.Warn("bad method", zap.String("method", r.Method))
-		}
+		h.log.Warn("bad method", zap.String("method", r.Method))
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
@@ -33,16 +32,12 @@ func (h *Handler) ProducePrice(w http.ResponseWriter, r *http.Request) {
 	addPriceRequest := dto.AddPriceRequest{}
 
 	if err := json.NewDecoder(r.Body).Decode(&addPriceRequest); err != nil {
-		if h.log != nil {
-			h.log.Warn("bad request body", zap.Error(err))
-		}
+		h.log.Warn("bad request body", zap.Error(err))
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 	if err := validateBody(&addPriceRequest); err == false {
-		if h.log != nil {
-			h.log.Warn("validation failed", zap.String("symbol", addPriceRequest.Symbol), zap.Float64("value", addPriceRequest.Value))
-		}
+		h.log.Warn("validation failed", zap.String("symbol", addPriceRequest.Symbol), zap.Float64("value", addPriceRequest.Value))
 		http.Error(w, "Недостаточно аргументов", http.StatusBadRequest)
 		return
 	}
@@ -53,21 +48,15 @@ func (h *Handler) ProducePrice(w http.ResponseWriter, r *http.Request) {
 		Timestamp: time.Now().UTC().Format(time.RFC3339),
 	}
 
-	if h.log != nil {
-		h.log.Info("incoming manual price", zap.String("symbol", price.Symbol), zap.Float64("value", price.Value))
-	}
+	h.log.Info("incoming manual price", zap.String("symbol", price.Symbol), zap.Float64("value", price.Value))
 	err := h.publisher.Publish(r.Context(), price)
 	if err != nil {
-		if h.log != nil {
-			h.log.Error("publish error", zap.Error(err))
-		}
+		h.log.Error("publish error", zap.Error(err))
 		w.WriteHeader(http.StatusInternalServerError)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	if h.log != nil {
-		h.log.Info("manual price published", zap.String("symbol", price.Symbol), zap.Float64("value", price.Value))
-	}
+	h.log.Info("manual price published", zap.String("symbol", price.Symbol), zap.Float64("value", price.Value))
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(map[string]string{

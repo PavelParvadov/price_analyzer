@@ -37,6 +37,7 @@ func NewProducer(publisher PricePublisher, cfg config.Config) *Producer {
 		publisher: publisher,
 		cfg:       cfg,
 		last:      make(map[string]float64),
+		log:       zap.NewNop(),
 	}
 }
 
@@ -59,9 +60,7 @@ func (p *Producer) Start(ctx context.Context) error {
 				}
 				pubCtx, cancel := context.WithTimeout(ctx, 3*time.Second)
 				if err := p.publisher.Publish(pubCtx, msg); err != nil {
-					if p.log != nil {
-						p.log.Error("publish failed", zap.String("symbol", msg.Symbol), zap.Float64("value", msg.Value), zap.Error(err))
-					}
+					p.log.Error("publish failed", zap.String("symbol", msg.Symbol), zap.Float64("value", msg.Value), zap.Error(err))
 				}
 				cancel()
 			}

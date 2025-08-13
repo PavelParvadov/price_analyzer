@@ -18,6 +18,9 @@ type Producer struct {
 }
 
 func NewProducer(cfg config.Config, log *zap.Logger) *Producer {
+	if log == nil {
+		log = zap.NewNop()
+	}
 	writer := kafka.NewWriter(kafka.WriterConfig{
 		Brokers:      cfg.KafkaConfig.Addresses,
 		Topic:        cfg.KafkaConfig.Topic,
@@ -44,14 +47,10 @@ func (p *Producer) Publish(ctx context.Context, pr models.Price) error {
 		Key:   []byte(pr.Symbol),
 	})
 	if err != nil {
-		if p.log != nil {
-			p.log.Error("kafka publish failed", zap.Error(err), zap.String("symbol", pr.Symbol), zap.Float64("value", pr.Value))
-		}
+		p.log.Error("kafka publish failed", zap.Error(err), zap.String("symbol", pr.Symbol), zap.Float64("value", pr.Value))
 		return fmt.Errorf("error writing to kafka: %w", err)
 	}
-	if p.log != nil {
-		p.log.Info("kafka message sent", zap.String("topic", p.Producer.Stats().Topic), zap.String("symbol", pr.Symbol), zap.Float64("value", pr.Value))
-	}
+	p.log.Info("kafka message sent", zap.String("topic", p.Producer.Stats().Topic), zap.String("symbol", pr.Symbol), zap.Float64("value", pr.Value))
 
 	return nil
 
