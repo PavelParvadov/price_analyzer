@@ -2,11 +2,11 @@ package app
 
 import (
 	"context"
+	rredis "github.com/PavelParvadov/price_analyzer/price-cache/internal/repository/redis"
 
 	grpcapp "github.com/PavelParvadov/price_analyzer/price-cache/internal/app/grpc"
 	"github.com/PavelParvadov/price_analyzer/price-cache/internal/config"
 	kconsumer "github.com/PavelParvadov/price_analyzer/price-cache/internal/infra/kafka"
-	rredis "github.com/PavelParvadov/price_analyzer/price-cache/internal/infra/redis"
 	"github.com/PavelParvadov/price_analyzer/price-cache/internal/usecase"
 	"go.uber.org/zap"
 )

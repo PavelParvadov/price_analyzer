@@ -51,22 +51,26 @@ func (p *Producer) Start(ctx context.Context) error {
 		case <-ctx.Done():
 			return ctx.Err()
 		case <-ticker.C:
-			for _, symbol := range p.cfg.Producer.Tickers {
-				value := p.nextPrice(symbol)
-				msg := models.Price{
-					Symbol:    symbol,
-					Value:     value,
-					Timestamp: time.Now().UTC().Format(time.RFC3339),
-				}
-				pubCtx, cancel := context.WithTimeout(ctx, 3*time.Second)
-				if err := p.publisher.Publish(pubCtx, msg); err != nil {
-					p.log.Error("publish failed", zap.String("symbol", msg.Symbol), zap.Float64("value", msg.Value), zap.Error(err))
-				}
-				cancel()
-			}
+			p.Ticketing(ctx)
 		}
 	}
 
+}
+
+func (p *Producer) Ticketing(ctx context.Context) {
+	for _, symbol := range p.cfg.Producer.Tickers {
+		value := p.nextPrice(symbol)
+		msg := models.Price{
+			Symbol:    symbol,
+			Value:     value,
+			Timestamp: time.Now().UTC().Format(time.RFC3339),
+		}
+		pubCtx, cancel := context.WithTimeout(ctx, 3*time.Second)
+		if err := p.publisher.Publish(pubCtx, msg); err != nil {
+			p.log.Error("publish failed", zap.String("symbol", msg.Symbol), zap.Float64("value", msg.Value), zap.Error(err))
+		}
+		cancel()
+	}
 }
 
 func (p *Producer) nextPrice(symbol string) float64 {

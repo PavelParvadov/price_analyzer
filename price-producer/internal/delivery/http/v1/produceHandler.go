@@ -13,13 +13,13 @@ import (
 )
 
 type Handler struct {
-	publisher usecase.PricePublisher
-	log       *zap.Logger
+	publishService usecase.PricePublisher
+	log            *zap.Logger
 }
 
 func NewHandler(p usecase.PricePublisher) *Handler {
-	// гарантируем не-nil логгер
-	return &Handler{publisher: p, log: zap.NewNop()}
+
+	return &Handler{publishService: p, log: zap.NewNop()}
 }
 
 func (h *Handler) ProducePrice(w http.ResponseWriter, r *http.Request) {
@@ -49,7 +49,7 @@ func (h *Handler) ProducePrice(w http.ResponseWriter, r *http.Request) {
 	}
 
 	h.log.Info("incoming manual price", zap.String("symbol", price.Symbol), zap.Float64("value", price.Value))
-	err := h.publisher.Publish(r.Context(), price)
+	err := h.publishService.Publish(r.Context(), price)
 	if err != nil {
 		h.log.Error("publish error", zap.Error(err))
 		w.WriteHeader(http.StatusInternalServerError)
